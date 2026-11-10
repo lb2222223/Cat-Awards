@@ -115,6 +115,10 @@ nav a:not(.cta):hover::after{transform:scaleX(1)}
 .opt:hover .pic img{transform:scale(1.1)}
 #prog{position:fixed;top:env(safe-area-inset-top,0px);left:0;height:3px;width:0;background:linear-gradient(90deg,var(--gold2),var(--gold),#fff1c4);z-index:30}
 .cf{position:fixed;pointer-events:none;z-index:60;font-size:22px}
+.lockwrap{position:relative}
+.lockwrap>.grid{filter:blur(3px) grayscale(.6);opacity:.5;pointer-events:none}
+.lockwrap>.lk{z-index:5;border-radius:16px}
+#kategorien .actions{opacity:.5;pointer-events:none;filter:grayscale(.6)}
 .pk.locked .pki>:not(.lk){filter:blur(3px) grayscale(.6);opacity:.5}
 .pk.locked .pkc::before,.pk.locked .pkc::after{opacity:.12!important}
 .lk{position:absolute;inset:0;z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;padding:16px;background:rgba(14,12,8,.5);border-radius:inherit}
@@ -252,7 +256,7 @@ nav a.active:not(.cta)::after{transform:scaleX(1)}
   <section id="kategorien">
     <h2>Kategorien</h2>
     <p class="sub">Wähle pro Kategorie deinen Favoriten.</p>
-    <div class="grid" id="cats"></div>
+    <div class="lockwrap"><div class="grid" id="cats"></div><div class="lk"><span>🔒</span><b>Folgt bald</b><small>Die Abstimmung startet später.</small></div></div>
     <div class="actions">
       <button class="btn" id="submit">Stimmen abgeben</button>
       <span id="msg"></span>
@@ -345,7 +349,7 @@ nav a.active:not(.cta)::after{transform:scaleX(1)}
   <div class="foot">
     <div class="soc"><a href="#">Instagram</a><a href="#">TikTok</a><a href="#">Discord</a><a href="#">X</a></div>
     <div>🐱 <b style="color:var(--text)">Cat Awards</b></div>
-    <div class="leg">© 2027 Cat Awards <a href="#" data-legal="impressum">Impressum</a> <a href="#" data-legal="datenschutz">Datenschutz</a></div>
+    <div class="leg">© 2027 Cat Awards <span class="lock" title="Bald verfügbar">🔒 Impressum</span> <span class="lock" title="Bald verfügbar">🔒 Datenschutz</span></div>
   </div>
 </footer>
 
@@ -454,11 +458,11 @@ catsEl.addEventListener("change",()=>{syncStatus();setTimeout(closeCat,650)});
 addEventListener("keydown",e=>{if(e.key==="Escape")closeCat()});
 syncStatus();
 const LEGAL={
- impressum:'<h3>Impressum</h3><h4>Angaben nach § 5 DDG</h4><p>Luis Boos<br>Alte Hauptstr. 67<br>35510 Butzbach<br>Deutschland</p><h4>Kontakt</h4><p>E-Mail: <a href="mailto:vote@cat-awards.de">vote@cat-awards.de</a></p><h4>Verantwortlich für den Inhalt</h4><p>Luis Boos, Anschrift wie oben.</p>',
- datenschutz:'<h3>Datenschutz</h3><h4>Wer ist verantwortlich?</h4><p>Luis Boos, Alte Hauptstr. 67, 35510 Butzbach, <a href="mailto:vote@cat-awards.de">vote@cat-awards.de</a></p><h4>Cookies und Tracking</h4><p>Diese Seite nutzt keine Cookies und kein Tracking.</p><h4>Was wird gespeichert?</h4><p>Dein Nickname und deine Stimmen werden nur in deinem eigenen Browser gespeichert. Sie werden nicht an uns übertragen. Du kannst sie jederzeit löschen, indem du die Websitedaten deines Browsers löschst.</p><h4>Hosting</h4><p>Beim Aufruf der Seite verarbeitet der Hosting-Anbieter technisch notwendige Daten, zum Beispiel deine IP-Adresse. Das ist nötig, damit die Seite angezeigt werden kann.</p><h4>Deine Rechte</h4><p>Du kannst Auskunft, Berichtigung oder Löschung deiner Daten verlangen. Schreib uns dazu einfach eine E-Mail.</p><h4>Hinweis</h4><p>Wenn später ein Login über Twitch dazukommt, wird dieser Text entsprechend ergänzt.</p>'
+ impressum:'<h3>Impressum</h3><h4>Angaben nach § 5 DDG</h4><p>Luis Boos<br>Alte Hauptstr. 67<br>35510 Butzbach<br>Deutschland</p><h4>Kontakt</h4><p>E-Mail: <a class="em" href="#"></a></p><h4>Verantwortlich für den Inhalt</h4><p>Luis Boos, Anschrift wie oben.</p>',
+ datenschutz:'<h3>Datenschutz</h3><h4>Wer ist verantwortlich?</h4><p>Luis Boos, Alte Hauptstr. 67, 35510 Butzbach, <a class="em" href="#"></a></p><h4>Cookies und Tracking</h4><p>Diese Seite nutzt keine Cookies und kein Tracking.</p><h4>Was wird gespeichert?</h4><p>Dein Nickname und deine Stimmen werden nur in deinem eigenen Browser gespeichert. Sie werden nicht an uns übertragen. Du kannst sie jederzeit löschen, indem du die Websitedaten deines Browsers löschst.</p><h4>Hosting</h4><p>Beim Aufruf der Seite verarbeitet der Hosting-Anbieter technisch notwendige Daten, zum Beispiel deine IP-Adresse. Das ist nötig, damit die Seite angezeigt werden kann.</p><h4>Deine Rechte</h4><p>Du kannst Auskunft, Berichtigung oder Löschung deiner Daten verlangen. Schreib uns dazu einfach eine E-Mail.</p><h4>Hinweis</h4><p>Wenn später ein Login über Twitch dazukommt, wird dieser Text entsprechend ergänzt.</p>'
 };
 const legalEl=document.getElementById("legal");
-document.querySelectorAll("[data-legal]").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();document.getElementById("legalBody").innerHTML=LEGAL[a.dataset.legal];legalEl.classList.add("show")}));
+document.querySelectorAll("[data-legal]").forEach(a=>a.addEventListener("click",e=>{e.preventDefault();document.getElementById("legalBody").innerHTML=LEGAL[a.dataset.legal];document.querySelectorAll("#legalBody .em").forEach(x=>{const m=atob("dm90ZUBjYXQtYXdhcmRzLmRl");x.href="mailto:"+m;x.textContent=m});legalEl.classList.add("show")}));
 document.getElementById("closeL").onclick=()=>legalEl.classList.remove("show");
 legalEl.addEventListener("click",e=>{if(e.target===legalEl)legalEl.classList.remove("show")});
 addEventListener("keydown",e=>{if(e.key==="Escape")legalEl.classList.remove("show")});
