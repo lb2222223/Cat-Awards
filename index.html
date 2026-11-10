@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E0C08">
+<title>Cat Awards 2026</title>
+<style>
+:root{--bg:#0E0C08;--surface:#17140d;--surface2:#1f1a11;--text:#f4efe4;--muted:#a89d86;--gold:#e9b23c;--gold2:#b8841c;--border:#2c2516;color-scheme:dark;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 80px)}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;
+background-image:radial-gradient(ellipse 70% 40% at 50% 0%,rgba(233,178,60,.16),transparent 70%);background-repeat:no-repeat}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:20}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:21;background:rgba(14,12,8,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)}
+.bar{max-width:1040px;margin:auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:10px;font-weight:800;color:var(--text);text-decoration:none;letter-spacing:.02em}
+.logo b{color:var(--gold)}
+nav{display:flex;gap:6px;align-items:center}
+nav a{color:var(--muted);text-decoration:none;font-weight:600;padding:8px 12px;border-radius:8px}
+nav a:hover{color:var(--text);background:var(--surface2)}
+nav a.cta{background:var(--gold);color:#1a1405}
+nav a.cta:hover{background:#f3c35a}
+#burger{display:none;background:none;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 12px;font:inherit}
+@media(max-width:720px){#burger{display:block}nav{display:none;position:absolute;top:100%;left:0;right:0;background:var(--bg);flex-direction:column;align-items:stretch;padding:10px 20px 16px;border-bottom:1px solid var(--border)}nav.open{display:flex}}
+section{max-width:1040px;margin:auto;padding:64px 20px}
+.hero{text-align:center;padding:96px 20px 72px}
+.badge{display:inline-block;border:1px solid var(--gold2);color:var(--gold);border-radius:99px;padding:4px 14px;font-size:.85rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px}
+.hero h1{font-size:clamp(2.6rem,9vw,5rem);line-height:1.05;margin:0 0 16px;letter-spacing:-.02em}
+.hero h1 span{background:linear-gradient(90deg,var(--gold),#fff1c4,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);max-width:540px;margin:0 auto 28px;font-size:1.1rem}
+.btn{display:inline-block;background:var(--gold);color:#1a1405;border:0;border-radius:10px;padding:13px 26px;font:inherit;font-weight:800;text-decoration:none;cursor:pointer}
+.btn:hover{background:#f3c35a}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--border);margin-left:8px}
+h2{font-size:1.9rem;margin:0 0 6px}
+.sub{color:var(--muted);margin:0 0 28px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px}
+.card:hover{border-color:var(--gold2)}
+.card h3{margin:0 0 12px;font-size:1.1rem;color:var(--gold)}
+.opt{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;cursor:pointer}
+.opt:hover{background:var(--surface2)}
+.opt input{accent-color:var(--gold)}
+.actions{margin-top:26px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+#msg{color:var(--gold)}
+.steps{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;counter-reset:s}
+.steps li{counter-increment:s;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px}
+.steps li::before{content:"0" counter(s);display:block;font-size:2rem;font-weight:800;color:var(--gold);margin-bottom:4px}
+.res{list-style:none;padding:0;margin:0}
+.res li{padding:10px 0;border-bottom:1px solid var(--border)}
+footer{border-top:1px solid var(--border);background:var(--surface);margin-top:32px}
+.foot{max-width:1040px;margin:auto;padding:36px 20px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;color:var(--muted);font-size:.9rem}
+.foot .soc,.foot .leg{display:flex;gap:18px;flex-wrap:wrap;justify-content:center}
+.foot a{color:var(--muted);text-decoration:none}
+.foot a:hover{color:var(--gold)}
+.login{background:transparent;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font:inherit;font-weight:700;cursor:pointer}
+.login:hover{border-color:var(--gold);color:var(--gold)}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+.opt{flex-direction:column;align-items:stretch;padding:0;border:2px solid var(--border);overflow:hidden;gap:0}
+.opt input{position:absolute;opacity:0;pointer-events:none}
+.opt{position:relative}
+.opt .pic{aspect-ratio:16/10;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:2rem}
+.opt .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.opt .nm{padding:8px 10px;font-weight:600;font-size:.9rem}
+.opt:has(input:checked){border-color:var(--gold);background:var(--surface2)}
+.opt:has(input:checked) .nm{color:var(--gold)}
+.modal{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.7);display:none;align-items:center;justify-content:center;padding:20px}
+.modal.show{display:flex}
+.box{background:var(--surface);border:1px solid var(--gold2);border-radius:18px;padding:28px;width:100%;max-width:380px;position:relative}
+.box h3{margin:0 0 4px;font-size:1.4rem}
+.box p{color:var(--muted);margin:0 0 18px}
+.box input[type=text]{width:100%;background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:12px;font:inherit;margin-bottom:12px}
+.box .btn{width:100%;margin:0 0 10px;text-align:center}
+.box .tw{background:#9146ff;color:#fff}
+.box .x{position:absolute;top:10px;right:14px;background:none;border:0;color:var(--muted);font-size:1.4rem;cursor:pointer}
+.note{font-size:.8rem;color:var(--muted);margin:6px 0 0}
+.news{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.post{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+.post:hover{border-color:var(--gold2)}
+.post .pic{aspect-ratio:16/9;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:2.4rem}
+.post .pic img{width:100%;height:100%;object-fit:cover;display:block}
+.post .body{padding:18px}
+.post .date{color:var(--gold);font-size:.8rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.post h3{margin:4px 0 8px;font-size:1.15rem}
+.post p{margin:0;color:var(--muted)}
+.hero{position:relative;overflow:hidden}
+.hero>*:not(.floaters){position:relative;z-index:1}
+.floaters{position:absolute;inset:0;pointer-events:none;z-index:0}
+.floaters span{position:absolute;bottom:-40px;opacity:0;animation:rise linear infinite}
+@keyframes rise{0%{transform:translateY(0) rotate(0);opacity:0}10%{opacity:.5}90%{opacity:.35}100%{transform:translateY(-110vh) rotate(40deg);opacity:0}}
+.hero h1 span{background-size:200% auto;animation:shimmer 4s linear infinite}
+@keyframes shimmer{to{background-position:200% center}}
+.hero .badge,.hero h1,.hero p,.hero .btn{animation:up .8s cubic-bezier(.2,.7,.2,1) both}
+.hero h1{animation-delay:.1s}.hero p{animation-delay:.2s}.hero .btn{animation-delay:.3s}
+@keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.rv{opacity:0;transform:translateY(28px);transition:opacity .7s ease,transform .7s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+.card,.post,.steps li{position:relative;transition:transform .25s ease,border-color .25s,box-shadow .25s}
+.card:hover,.post:hover,.steps li:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(233,178,60,.12)}
+.card::after,.post::after,.steps li::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(233,178,60,.14),transparent 60%)}
+.card:hover::after,.post:hover::after,.steps li:hover::after{opacity:1}
+.btn{position:relative;overflow:hidden;transition:transform .15s,background .2s}
+.btn:active{transform:scale(.96)}
+.btn::after{content:"";position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);transition:left .6s}
+.btn:hover::after{left:130%}
+nav a:not(.cta){position:relative}
+nav a:not(.cta)::after{content:"";position:absolute;left:12px;right:12px;bottom:3px;height:2px;background:var(--gold);transform:scaleX(0);transition:transform .25s}
+nav a:not(.cta):hover::after{transform:scaleX(1)}
+.opt{transition:transform .2s,border-color .2s,background .2s}
+.opt:hover{transform:scale(1.04)}
+.opt:has(input:checked) .pic{animation:pop .4s cubic-bezier(.3,1.6,.5,1)}
+@keyframes pop{0%{transform:scale(.85)}100%{transform:scale(1)}}
+.opt .pic img{transition:transform .4s}
+.opt:hover .pic img{transform:scale(1.1)}
+#prog{position:fixed;top:env(safe-area-inset-top,0px);left:0;height:3px;width:0;background:linear-gradient(90deg,var(--gold2),var(--gold),#fff1c4);z-index:30}
+.cf{position:fixed;pointer-events:none;z-index:60;font-size:22px}
+#cats{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}
+.cat{padding:0;overflow:hidden}
+.chead{all:unset;box-sizing:border-box;display:flex;flex-direction:column;align-items:flex-start;gap:6px;padding:18px;width:100%;min-height:128px;cursor:pointer;color:var(--text)}
+.chead:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.ci{font-size:1.9rem;transition:transform .25s}
+.cat:hover .ci{transform:scale(1.15) rotate(-6deg)}
+.ct{font-weight:700}
+.cs{font-size:.78rem;color:var(--muted);margin-top:auto}
+.cs.done{color:var(--gold)}
+.cbody{display:none;padding:24px}
+.cbody h3{font-size:1.5rem}
+.back{background:none;border:0;color:var(--gold);font:inherit;font-weight:700;cursor:pointer;padding:0;margin-bottom:14px}
+#cats.open .cat{display:none}
+#cats.open .cat.active{display:block;grid-column:1/-1;transform:none;animation:expand .45s cubic-bezier(.2,.8,.2,1)}
+.cat.active .chead{display:none}
+.cat.active .cbody{display:block}
+.cat.active .opts{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))}
+@keyframes expand{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.deck{display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;padding:24px 8px 32px;perspective:1000px;-webkit-overflow-scrolling:touch}
+.pk{flex:0 0 250px;aspect-ratio:5/7;scroll-snap-align:center;opacity:0;transform:translateX(-180px) rotate(-12deg) scale(.88);transition:opacity .6s ease,transform .95s cubic-bezier(.2,.9,.25,1.1);transition-delay:calc(var(--i)*.25s)}
+.deck.in .pk{opacity:1;transform:none}
+.pkc{position:relative;height:100%;border-radius:16px;padding:10px;background:linear-gradient(145deg,#f3c35a,#b8841c 45%,#f6d57f);box-shadow:0 10px 30px rgba(0,0,0,.5);transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .15s,box-shadow .3s;overflow:hidden}
+.pkc:hover{box-shadow:0 18px 44px rgba(233,178,60,.35)}
+.pkc::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;transition:opacity .3s;mix-blend-mode:color-dodge;background:linear-gradient(115deg,transparent 20%,rgba(255,0,150,.45) 35%,rgba(0,220,255,.45) 50%,rgba(255,240,0,.45) 65%,transparent 80%);background-size:250% 250%;background-position:var(--hx,50%) var(--hy,50%)}
+.pkc:hover::after{opacity:.75}
+.pki{height:100%;border-radius:10px;background:linear-gradient(180deg,#241d10,#120f08);display:flex;flex-direction:column;padding:12px;gap:10px;position:relative;z-index:1}
+.pkh{display:flex;justify-content:space-between;align-items:baseline;font-weight:800;font-size:1.05rem}
+.pkh small{color:var(--gold);font-size:.7rem;letter-spacing:.08em}
+.pkart{flex:1;border-radius:8px;border:2px solid var(--gold2);background:radial-gradient(circle at 50% 40%,rgba(233,178,60,.35),#1a1409 70%);display:flex;align-items:center;justify-content:center;font-size:4rem}
+.pkart span{filter:drop-shadow(0 6px 10px rgba(0,0,0,.6));animation:bob 3s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-8px)}}
+.pkt{font-size:.85rem;color:var(--muted);line-height:1.4}
+.pkt b{color:var(--text);display:block;margin-bottom:2px}
+.pkf{display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted);border-top:1px solid var(--border);padding-top:6px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv{opacity:1;transform:none}.floaters{display:none}}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <a class="logo" href="#start">🐱 <span>Cat <b>Awards</b></span></a>
+    <button id="burger" aria-label="Menü">Menü</button>
+    <nav id="nav">
+      <a href="#kategorien">Abstimmen</a>
+      <a href="#news">News</a>
+      <a href="#ergebnisse">Gewinner</a>
+      <a href="#ablauf">Ablauf</a>
+      <a href="#ueber">Über uns</a>
+      <a class="cta" href="#kategorien">Jetzt voten</a>
+      <button class="login" id="loginBtn">Login</button>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section id="start" class="hero">
+    <div class="floaters" id="floaters"></div>
+    <span class="badge">Cat Awards 2026</span>
+    <h1>Die besten <span>Momente</span> des Jahres</h1>
+    <p>Du entscheidest, was 2026 das Beste war. Stimme in jeder Kategorie für deinen Favoriten ab.</p>
+    <a class="btn" href="#kategorien">Jetzt abstimmen</a><a class="btn ghost" href="#ablauf">So läuft es ab</a>
+  </section>
+
+  <section id="kategorien">
+    <h2>Kategorien</h2>
+    <p class="sub">Wähle pro Kategorie deinen Favoriten.</p>
+    <div class="grid" id="cats"></div>
+    <div class="actions">
+      <button class="btn" id="submit">Stimmen abgeben</button>
+      <span id="msg"></span>
+    </div>
+  </section>
+
+  <section id="news">
+    <h2>News</h2>
+    <p class="sub">Neuigkeiten rund um die Cat Awards.</p>
+    <div class="news" id="newsList"></div>
+  </section>
+
+  <section id="ablauf">
+    <h2>Ablauf</h2>
+    <p class="sub">Drei Schritte bis zu den Gewinnern.</p>
+    <div class="deck" id="deck">
+      <div class="pk" style="--i:0"><div class="pkc"><div class="pki">
+        <div class="pkh"><span>Einsendungen</span><small>PHASE 1</small></div>
+        <div class="pkart"><span>📬</span></div>
+        <div class="pkt"><b>Nominierungen sammeln</b>Alle können Vorschläge einreichen.</div>
+        <div class="pkf"><span>Seltenheit ★</span><span>01/03</span></div>
+      </div></div></div>
+      <div class="pk" style="--i:1"><div class="pkc"><div class="pki">
+        <div class="pkh"><span>Abstimmung</span><small>PHASE 2</small></div>
+        <div class="pkart"><span>🗳️</span></div>
+        <div class="pkt"><b>Jetzt voten</b>Alle stimmen in jeder Kategorie ab.</div>
+        <div class="pkf"><span>Seltenheit ★★</span><span>02/03</span></div>
+      </div></div></div>
+      <div class="pk" style="--i:2"><div class="pkc"><div class="pki">
+        <div class="pkh"><span>Gewinner</span><small>PHASE 3</small></div>
+        <div class="pkart"><span>🏆</span></div>
+        <div class="pkt"><b>Auswertung &amp; Verkündung</b>Die Gewinner werden gekürt.</div>
+        <div class="pkf"><span>Seltenheit ★★★</span><span>03/03</span></div>
+      </div></div></div>
+    </div>
+  </section>
+
+  <section id="ergebnisse">
+    <h2>Gewinner</h2>
+    <p class="sub">Die Gewinner erscheinen hier nach der Auswertung. Bis dahin: deine eigenen Stimmen.</p>
+    <ul class="res" id="mine"></ul>
+  </section>
+
+  <section id="ueber">
+    <h2>Über uns</h2>
+    <p class="sub">Die Cat Awards wurden früher von mir gehostet und werden jetzt neu gestartet. Hier kommt später ein Text zur Geschichte und zu den Regeln hin.</p>
+  </section>
+</main>
+
+<div class="modal" id="modal">
+  <div class="box">
+    <button class="x" id="closeM" aria-label="Schließen">×</button>
+    <h3>Anmelden</h3>
+    <p>Melde dich an, um abzustimmen.</p>
+    <button class="btn tw" id="twBtn">Mit Twitch anmelden</button>
+    <input type="text" id="nick" placeholder="Oder Nickname eingeben" maxlength="24">
+    <button class="btn" id="nickBtn">Anmelden</button>
+    <div class="note" id="loginNote"></div>
+  </div>
+</div>
+
+<footer>
+  <div class="foot">
+    <div class="soc"><a href="#">Instagram</a><a href="#">TikTok</a><a href="#">Discord</a><a href="#">X</a></div>
+    <div>🐱 <b style="color:var(--text)">Cat Awards</b></div>
+    <div class="leg">© 2026 Cat Awards <a href="#">Impressum</a> <a href="#">Datenschutz</a></div>
+  </div>
+</footer>
+
+<script>
+// Kategorien und Nominierte hier einfach anpassen.
+// Bilder: statt "Nominierter A" einfach {name:"Nominierter A", img:"data:image/jpeg;base64,..."} schreiben.
+// (Externe Bild-Links werden auf der veröffentlichten Seite blockiert, Bilder müssen eingebettet sein.)
+const NOM=["Nominierter A","Nominierter B","Nominierter C"];
+const CATEGORIES=[
+  {id:"video",icon:"🎬",name:"Bestes Video",options:NOM},
+  {id:"game",icon:"🎮",name:"Bestes Spiel",options:NOM},
+  {id:"moment",icon:"⭐",name:"Bester Moment",options:NOM},
+  {id:"person",icon:"👤",name:"Person des Jahres",options:NOM},
+  {id:"meme",icon:"😂",name:"Bestes Meme",options:NOM},
+  {id:"song",icon:"🎵",name:"Bester Song",options:NOM},
+  {id:"film",icon:"🍿",name:"Bester Film",options:NOM},
+  {id:"serie",icon:"📺",name:"Beste Serie",options:NOM},
+  {id:"fail",icon:"🤡",name:"Bester Fail",options:NOM},
+  {id:"newcomer",icon:"🌱",name:"Bester Newcomer",options:NOM},
+  {id:"community",icon:"🫂",name:"Beste Community",options:NOM},
+  {id:"duo",icon:"👯",name:"Bestes Duo",options:NOM},
+  {id:"twist",icon:"🌀",name:"Bester Plot-Twist",options:NOM},
+  {id:"hype",icon:"🔥",name:"Größter Hype",options:NOM},
+  {id:"cat",icon:"🐱",name:"Katze des Jahres",options:NOM}
+];
+const KEY="catawards-votes";
+let votes={};
+try{votes=JSON.parse(localStorage.getItem(KEY)||"{}")}catch(e){}
+const cats=document.getElementById("cats");
+CATEGORIES.forEach(c=>{
+  const d=document.createElement("div");d.className="card cat";
+  d.innerHTML='<button class="chead" type="button"><span class="ci">'+c.icon+'</span><span class="ct">'+c.name+'</span><span class="cs" id="cs-'+c.id+'"></span></button><div class="cbody"><button class="back" type="button">← Alle Kategorien</button><h3>'+c.name+'</h3><div class="opts">'+c.options.map(o=>{
+    const n=typeof o==="string"?o:o.name, im=typeof o==="string"?"":(o.img||"");
+    return '<label class="opt"><input type="radio" name="'+c.id+'" value="'+n+'"'+(votes[c.id]===n?" checked":"")+'><div class="pic">'+(im?'<img src="'+im+'" alt="">':"🐱")+'</div><div class="nm">'+n+"</div></label>";
+  }).join("")+"</div></div>";
+  cats.appendChild(d);
+});
+function showMine(){
+  const l=CATEGORIES.filter(c=>votes[c.id]).map(c=>"<li><b>"+c.name+":</b> "+votes[c.id]+"</li>");
+  document.getElementById("mine").innerHTML=l.length?l.join(""):"<li>Noch keine Stimmen abgegeben.</li>";
+}
+document.getElementById("submit").onclick=()=>{
+  if(!user){openM();return}
+  CATEGORIES.forEach(c=>{const s=document.querySelector('input[name="'+c.id+'"]:checked');if(s)votes[c.id]=s.value});
+  try{localStorage.setItem(KEY,JSON.stringify(votes))}catch(e){}
+  document.getElementById("msg").textContent="Danke, deine Stimmen sind gespeichert!";
+  showMine();
+};
+const nav=document.getElementById("nav");
+document.getElementById("burger").onclick=()=>nav.classList.toggle("open");
+nav.addEventListener("click",e=>{if(e.target.tagName==="A")nav.classList.remove("open")});
+// News: neueste zuerst. Bild optional: img:"data:image/jpeg;base64,..."
+const NEWS=[
+  {date:"09.11.2026",title:"Die Cat Awards sind zurück",text:"Nach einer Pause starten die Cat Awards neu. Alle Infos zu Kategorien und Ablauf folgen hier.",img:""},
+  {date:"01.11.2026",title:"Kategorien stehen fest",text:"Hier kommt ein kurzer Text zu den Kategorien und den Nominierten.",img:""},
+  {date:"25.10.2026",title:"Einsendungen geöffnet",text:"Platzhalter für eine weitere Neuigkeit. Einfach Text und Datum ändern.",img:""}
+];
+document.getElementById("newsList").innerHTML=NEWS.map(n=>'<article class="post"><div class="pic">'+(n.img?'<img src="'+n.img+'" alt="">':"🐱")+'</div><div class="body"><div class="date">'+n.date+"</div><h3>"+n.title+"</h3><p>"+n.text+"</p></div></article>").join("");
+
+// Login (Demo: nur im Browser gespeichert)
+let user=null;
+try{user=localStorage.getItem("catawards-user")}catch(e){}
+const modal=document.getElementById("modal"),lb=document.getElementById("loginBtn");
+function openM(){modal.classList.add("show")}
+function closeM(){modal.classList.remove("show")}
+function setUser(n){user=n;try{n?localStorage.setItem("catawards-user",n):localStorage.removeItem("catawards-user")}catch(e){}lb.textContent=n?"👤 "+n:"Login"}
+lb.onclick=()=>{if(user){setUser(null)}else openM()};
+document.getElementById("closeM").onclick=closeM;
+modal.addEventListener("click",e=>{if(e.target===modal)closeM()});
+document.getElementById("nickBtn").onclick=()=>{const v=document.getElementById("nick").value.trim();if(v){setUser(v);closeM()}};
+document.getElementById("twBtn").onclick=()=>{document.getElementById("loginNote").textContent="Twitch-Login ist noch nicht verbunden. Nutze vorerst den Nickname."};
+setUser(user);
+
+// Effekte
+const RM=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const fl=document.getElementById("floaters");
+for(let i=0;i<14;i++){const s=document.createElement("span");s.textContent=["🐱","⭐","🐾","🏆"][i%4];s.style.left=Math.random()*100+"%";s.style.fontSize=(16+Math.random()*22)+"px";s.style.animationDuration=(9+Math.random()*10)+"s";s.style.animationDelay=(-Math.random()*18)+"s";fl.appendChild(s)}
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll("section:not(.hero) h2,section:not(.hero) .sub,.card,.post,.steps li,.actions").forEach((el,i)=>{el.classList.add("rv");el.style.transitionDelay=(i%4)*80+"ms";io.observe(el)});
+document.addEventListener("mousemove",e=>{const t=e.target.closest&&e.target.closest(".card,.post,.steps li");if(t){const r=t.getBoundingClientRect();t.style.setProperty("--mx",e.clientX-r.left+"px");t.style.setProperty("--my",e.clientY-r.top+"px")}});
+const pg=document.createElement("div");pg.id="prog";document.body.appendChild(pg);
+addEventListener("scroll",()=>{const h=document.documentElement;pg.style.width=(scrollY/(h.scrollHeight-innerHeight||1)*100)+"%"},{passive:true});
+function confetti(){if(RM)return;const cols=["#e9b23c","#fff1c4","#b8841c","#f3c35a"],em=["🐱","🏆","⭐","🐾"];
+  for(let i=0;i<60;i++){const d=document.createElement("div");d.className="cf";
+    if(i%4===0){d.textContent=em[(i/4|0)%4]}else{d.style.width="9px";d.style.height="14px";d.style.background=cols[i%4]}
+    d.style.left=innerWidth/2+"px";d.style.top=innerHeight*.6+"px";document.body.appendChild(d);
+    const a=Math.random()*Math.PI*2,v=150+Math.random()*350,x=Math.cos(a)*v,y=Math.sin(a)*v-200;
+    d.animate([{transform:"translate(0,0) rotate(0)",opacity:1},{transform:"translate("+x+"px,"+(y+400)+"px) rotate("+(Math.random()*720)+"deg)",opacity:0}],{duration:1400+Math.random()*900,easing:"cubic-bezier(.2,.7,.3,1)"}).onfinish=()=>d.remove()}}
+document.getElementById("submit").addEventListener("click",()=>{if(user)confetti()});
+const catsEl=document.getElementById("cats");
+function syncStatus(){let n=0;CATEGORIES.forEach(c=>{const s=document.querySelector('input[name="'+c.id+'"]:checked'),el=document.getElementById("cs-"+c.id);
+  if(s){n++;el.textContent="✓ "+s.value;el.classList.add("done")}else{el.textContent="Noch offen";el.classList.remove("done")}});
+  document.querySelector("#kategorien .sub").textContent="Wähle eine Kategorie und stimme ab. Gewählt: "+n+"/"+CATEGORIES.length}
+function closeCat(){catsEl.classList.remove("open");catsEl.querySelectorAll(".cat.active").forEach(x=>x.classList.remove("active"))}
+catsEl.addEventListener("click",e=>{const card=e.target.closest(".cat");if(!card)return;
+  if(e.target.closest(".back")){closeCat();return}
+  if(e.target.closest(".chead")){card.classList.add("active");catsEl.classList.add("open");document.getElementById("kategorien").scrollIntoView({behavior:"smooth"})}});
+catsEl.addEventListener("change",()=>{syncStatus();setTimeout(closeCat,650)});
+addEventListener("keydown",e=>{if(e.key==="Escape")closeCat()});
+syncStatus();
+const deck=document.getElementById("deck");
+new IntersectionObserver((es,o)=>{if(es[0].isIntersecting){deck.classList.add("in");o.disconnect()}},{threshold:.25}).observe(deck);
+deck.querySelectorAll(".pkc").forEach(c=>{
+  c.addEventListener("mousemove",e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
+    c.style.setProperty("--ry",(x-.5)*18+"deg");c.style.setProperty("--rx",(.5-y)*18+"deg");c.style.setProperty("--hx",x*100+"%");c.style.setProperty("--hy",y*100+"%")});
+  c.addEventListener("mouseleave",()=>{c.style.setProperty("--rx","0deg");c.style.setProperty("--ry","0deg")});
+});
+showMine();
+</script>
+</body>
+</html>
