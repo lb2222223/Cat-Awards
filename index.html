@@ -399,6 +399,7 @@ nav a.active:not(.cta)::after{transform:scaleX(1)}
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 // LOWKEY ALLES PLATZHATER DU NUDDEN, aso an den der sich das durchliest: hast du nen Leben, wir sind mitten 60std drin und einer denkt er findet Infos... Wie peinlich man. hier ist noch nen Top Video: https://youtu.be/xMHJGd3wwZk?si=JHe4O6hG17zgduZ0 viel Spaß beim watchen HAHHAHAH;))) Spaß nh finds cool, dass einer die Website scanned:]
 const NOM=["Nominierter A","Nominierter B","Nominierter C"];
@@ -439,7 +440,9 @@ document.getElementById("submit").onclick=()=>{
   if(!user){openM();return}
   CATEGORIES.forEach(c=>{const s=document.querySelector('input[name="'+c.id+'"]:checked');if(s)votes[c.id]=s.value});
   try{localStorage.setItem(KEY,JSON.stringify(votes))}catch(e){}
-  document.getElementById("msg").textContent="Danke, deine Stimmen sind gespeichert!";
+  const mg=document.getElementById("msg");
+  if(Cloud.ready){mg.textContent="Speichere …";Cloud.saveVotes().then(ok=>{mg.textContent=ok?"Danke, deine Stimmen sind gespeichert!":"Speichern fehlgeschlagen. Bitte erneut versuchen."})}
+  else mg.textContent="Gespeichert, aber nur auf diesem Gerät. Melde dich mit Twitch an, damit deine Stimme zählt.";
   showMine();
 };
 const nav=document.getElementById("nav");
@@ -460,43 +463,10 @@ const modal=document.getElementById("modal"),lb=document.getElementById("loginBt
 function openM(){modal.classList.add("show")}
 function closeM(){modal.classList.remove("show")}
 function setUser(n){user=n;try{n?localStorage.setItem("catawards-user",n):localStorage.removeItem("catawards-user")}catch(e){}lb.textContent=n?"👤 "+n:"Login"}
-lb.onclick=()=>{if(user){setUser(null)}else openM()};
+lb.onclick=()=>{if(user){Cloud.logout()}else openM()};
 document.getElementById("closeM").onclick=closeM;
 modal.addEventListener("click",e=>{if(e.target===modal)closeM()});
 document.getElementById("nickBtn").onclick=()=>{const v=document.getElementById("nick").value.trim();if(v){setUser(v);closeM()}};
-/* ═══════════ 🟣 TWITCH-LOGIN (Implicit Grant) ═══════════
-   Einrichtung: https://dev.twitch.tv/console → "Anwendung registrieren"
-   • OAuth-Redirect-URL = exakt die Adresse dieser Seite (siehe TWITCH_REDIRECT, ohne #…)
-   • Client-ID unten eintragen. Ein Client-Secret ist hier NICHT nötig und gehört nie in diese Datei. */
-const TWITCH_CLIENT_ID="kp8jlnndpdi6x7cw9tyfy75imied37";
-const TWITCH_REDIRECT=location.origin+location.pathname;
-const TWITCH_SCOPES=""; // z. B. "user:read:email", falls du die E-Mail brauchst
-const twNote=t=>{document.getElementById("loginNote").textContent=t};
-const twReady=()=>/^[a-z0-9]{20,40}$/i.test(TWITCH_CLIENT_ID);
-document.getElementById("twBtn").onclick=()=>{
-  if(!twReady()){twNote("Twitch-Login ist noch nicht eingerichtet (Client-ID fehlt). Nutze vorerst den Nickname.");return}
-  const st=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,"0")).join("");
-  try{sessionStorage.setItem("tw-state",st)}catch(e){twNote("Der Browser blockiert die Sitzungsspeicherung. Bitte Nickname nutzen.");return}
-  location.href="https://id.twitch.tv/oauth2/authorize?client_id="+encodeURIComponent(TWITCH_CLIENT_ID)+"&redirect_uri="+encodeURIComponent(TWITCH_REDIRECT)+"&response_type=token&scope="+encodeURIComponent(TWITCH_SCOPES)+"&state="+st;
-};
-/* Rückkehr von Twitch: Token liegt im #-Teil, Fehler im ?-Teil der URL */
-(async()=>{
-  const q=new URLSearchParams(location.search),h=new URLSearchParams(location.hash.slice(1));
-  const tok=h.get("access_token"),err=q.get("error");
-  if(!tok&&!err)return;
-  history.replaceState(null,"",TWITCH_REDIRECT);   // Token sofort aus der Adresszeile entfernen
-  openM();
-  if(err){twNote("Twitch-Anmeldung abgebrochen.");return}
-  let ok=false;
-  try{ok=!!h.get("state")&&h.get("state")===sessionStorage.getItem("tw-state");sessionStorage.removeItem("tw-state")}catch(e){}
-  if(!ok){twNote("Sicherheitsprüfung fehlgeschlagen. Bitte erneut versuchen.");return}
-  try{
-    const r=await fetch("https://api.twitch.tv/helix/users",{headers:{Authorization:"Bearer "+tok,"Client-Id":TWITCH_CLIENT_ID}});
-    if(!r.ok)throw new Error(r.status);
-    const u=((await r.json()).data||[])[0];if(!u)throw new Error("leer");
-    setUser(u.display_name);twNote("");closeM();
-  }catch(e){twNote("Twitch-Daten konnten nicht geladen werden. Bitte erneut versuchen.")}
-})();
 setUser(user);
 
 // Effekte
@@ -607,6 +577,94 @@ deck.querySelectorAll(".pkc").forEach(c=>{
   c.addEventListener("mouseleave",()=>{c.style.setProperty("--rx","0deg");c.style.setProperty("--ry","0deg");c.style.setProperty("--tx",0);c.style.setProperty("--ty",0)});
 });
 showMine();
+
+/* ═══════════ ☁️ SUPABASE: Twitch-Login + Speichern ═══════════
+   Der publishable Key ist für den Einsatz im Seitencode gedacht (er darf öffentlich sein).
+   Der Schutz der Daten kommt von den Zugriffsregeln (RLS) in der Datenbank, siehe supabase_setup.sql.
+   NIE einen "secret"/"service_role"-Key oder das Twitch-Client-Secret in diese Datei schreiben. */
+const SB_URL="https://getwvakhbykrkdlcplhk.supabase.co";
+const SB_KEY="sb_publishable_CrF0p34D_IThA_Aj-8801A_kgc-uj_g";
+const AK="catawards-auth";
+const Cloud=(()=>{
+  const sb=window.supabase?window.supabase.createClient(SB_URL,SB_KEY,{auth:{flowType:"pkce",detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}}):null;
+  const C={uid:null,pulling:false,synced:false,timer:0};
+  const note=t=>{document.getElementById("loginNote").textContent=t};
+  const now=()=>new Date().toISOString();
+  Object.defineProperty(C,"ready",{get:()=>!!(sb&&C.uid&&C.synced)});
+  C.login=async()=>{
+    if(!sb){note("Der Login-Dienst konnte nicht geladen werden. Bitte Seite neu laden oder den Nickname nutzen.");return}
+    note("Weiter zu Twitch …");
+    const{error}=await sb.auth.signInWithOAuth({provider:"twitch",options:{redirectTo:location.origin+location.pathname}});
+    if(error){console.error(error);note("Der Twitch-Login konnte nicht gestartet werden.")}
+  };
+  async function push(){
+    if(!C.ready)return;
+    const r=await sb.from("progress").upsert({user_id:C.uid,data:{c:WD.c,tot:WD.tot,own:WD.own,eq:WD.eq},updated_at:now()});
+    if(r.error)console.error(r.error)
+  }
+  C.queue=()=>{if(!C.ready||C.pulling)return;clearTimeout(C.timer);C.timer=setTimeout(push,1500)};
+  C.saveVotes=async()=>{
+    if(!C.ready)return false;
+    const rows=CATEGORIES.filter(c=>votes[c.id]).map(c=>({user_id:C.uid,category:c.id,choice:String(votes[c.id]),updated_at:now()}));
+    if(!rows.length)return true;
+    const r=await sb.from("votes").upsert(rows);
+    if(r.error){console.error(r.error);return false}
+    return true
+  };
+  /* Beim Login: Server-Stand laden und mit dem lokalen Stand zusammenführen */
+  async function pull(uid){
+    C.pulling=true;
+    try{
+      const[v,p]=await Promise.all([sb.from("votes").select("category,choice"),sb.from("progress").select("data").maybeSingle()]);
+      if(v.error)throw v.error;if(p.error)throw p.error;
+      const srv={},up=[];(v.data||[]).forEach(r=>{srv[r.category]=r.choice});
+      CATEGORIES.forEach(c=>{if(srv[c.id])votes[c.id]=srv[c.id];else if(votes[c.id])up.push({user_id:uid,category:c.id,choice:String(votes[c.id]),updated_at:now()})});
+      if(up.length){const r=await sb.from("votes").upsert(up);if(r.error)throw r.error}
+      try{localStorage.setItem(KEY,JSON.stringify(votes))}catch(e){}
+      CATEGORIES.forEach(c=>document.querySelectorAll('input[name="'+c.id+'"]').forEach(r=>{r.checked=votes[c.id]===r.value}));
+      syncStatus();showMine();
+      /* Spielstand: der mit mehr verdienten µc gewinnt, bei Gleichstand der mit mehr Käufen */
+      const d=p.data&&p.data.data,own=o=>Object.keys(o||{}).length;
+      const srvBetter=d&&((+d.tot||0)>WD.tot||((+d.tot||0)===WD.tot&&own(d.own)>own(WD.own)));
+      if(srvBetter){WD.c=Math.max(0,+d.c||0);WD.tot=+d.tot||0;WD.own=d.own||{};WD.eq=d.eq||{};wsave();renderStore()}
+      C.synced=true;
+      if(!srvBetter)await push()
+    }catch(e){console.error(e);C.synced=false;openM();note("Dein gespeicherter Stand konnte nicht geladen werden. Bitte Seite neu laden.")}
+    finally{C.pulling=false}
+  }
+  C.start=async sess=>{
+    const u=sess.user;if(C.uid===u.id)return;
+    C.uid=u.id;
+    const md=u.user_metadata||{};
+    setUser(String(md.name||md.preferred_username||md.full_name||"Twitch-Nutzer").slice(0,24));
+    try{localStorage.setItem(AK,"twitch")}catch(e){}
+    closeM();note("");
+    await pull(u.id)
+  };
+  /* Abmelden: lokale Daten entfernen, damit auf geteilten Geräten nichts beim nächsten Konto landet */
+  C.logout=async()=>{
+    if(!C.uid){setUser(null);return}
+    try{await sb.auth.signOut({scope:"local"})}catch(e){}
+    try{[KEY,WK,AK,"catawards-user"].forEach(k=>localStorage.removeItem(k))}catch(e){}
+    location.reload()
+  };
+  if(sb){
+    sb.auth.onAuthStateChange((ev,sess)=>{
+      if(sess)setTimeout(()=>C.start(sess),0);
+      else if(ev==="INITIAL_SESSION"||ev==="SIGNED_OUT"){
+        C.uid=null;C.synced=false;
+        try{if(localStorage.getItem(AK)==="twitch"){localStorage.removeItem(AK);setUser(null)}}catch(e){}
+      }
+    });
+    addEventListener("visibilitychange",()=>{if(document.hidden&&C.ready){clearTimeout(C.timer);push()}});
+  }
+  /* Rückkehr von Twitch mit Fehler (z. B. "Abbrechen" gedrückt) */
+  const q=new URLSearchParams(location.search);
+  if(q.get("error")||q.get("error_description")){history.replaceState(null,"",location.pathname+location.hash);openM();note("Die Twitch-Anmeldung wurde abgebrochen oder ist fehlgeschlagen.")}
+  document.getElementById("twBtn").onclick=C.login;
+  wsubs.push(C.queue);
+  return C
+})();
 </script>
 <script>
 (function(){
@@ -699,10 +757,10 @@ cv.width=VW;cv.height=VH;
 const SFX_DEBUG=false;
 const SND={
  /* ── 🎵 MUSIK & ATMOSPHÄRE (laufen als Schleife, werden überblendet) ── */
- music_level:   {src:"LoFi Background.mp3",vol:.55,loop:1,in:3,  out:2.5},  // Level-Musik, startet beim Öffnen
- music_boss:    {src:["c0mp0s3r69-free-boss-fight-loop-575312.mp3","u_98a917e4i7-boss-fight-ahh-music-490611.mp3"],vol:.65,loop:1,in:2,  out:3.2},  // startet erst, wenn der Boss erreicht ist · fadet aus, sobald er besiegt ist
- music_win:     {src:"lordsonny-rock-cinematic-161648.mp3",vol:.55,loop:1,in:2.5,out:2},    // Siegesbildschirm
- ambient_night: {src:"soul_serenity_sounds-ambient-noise-236388.mp3",vol:.35,loop:1,in:4,  out:2.5},  // Nacht-Ambiente (Grillen, Wind) – nur im Level, nicht im Bosskampf
+ music_level:   {src:"",vol:.55,loop:1,in:3,  out:2.5},  // Level-Musik, startet beim Öffnen
+ music_boss:    {src:"",vol:.65,loop:1,in:2,  out:3.2},  // startet erst, wenn der Boss erreicht ist · fadet aus, sobald er besiegt ist
+ music_win:     {src:"",vol:.55,loop:1,in:2.5,out:2},    // Siegesbildschirm
+ ambient_night: {src:"",vol:.35,loop:1,in:4,  out:2.5},  // Nacht-Ambiente (Grillen, Wind) – nur im Level, nicht im Bosskampf
  ambient_boss:  {src:"",vol:.4, loop:1,in:2.5,out:3},    // Arena (Glut, Feuerknistern) ab Boss-Landung bis Boss-Tod
 
  /* ── 🖥️ MENÜ / SPIELSTATUS ── */
@@ -710,33 +768,33 @@ const SND={
  ui_close:      {src:"",vol:.6,in:.05,out:.2},           // Spielfenster geschlossen
  retry:         {src:"",vol:.7,in:.05,out:.3},           // Neustart / ab Checkpoint weiter
  game_over:     {src:"",vol:.8,in:.1, out:1},            // alle Leben verloren
- win_jingle:    {src:"universfield-cinematic-impact-hit-352702.mp3",vol:.9,in:.1, out:1.2},          // Pokal eingesammelt
+ win_jingle:    {src:"",vol:.9,in:.1, out:1.2},          // Pokal eingesammelt
  mute:          {src:"",vol:.5},                         // Stumm-Knopf umgeschaltet
 
  /* ── 🐱 KATZE ── */
  jump:          {src:"",vol:.6,rnd:.06,out:.1,max:3},
  land:          {src:"",vol:.4,rnd:.08,out:.1,max:3},    // normale Landung (nach Sprung)
- land_hard:     {src:"universfield-cinematic-impact-hit-352702.mp3",vol:.6,rnd:.06,out:.15,max:2},   // sehr harte Landung (langer Fall)
- run_loop:      {src:"joentnt-walk-on-grass-1-291984.mp3",vol:.35,loop:1,in:.12,out:.2},   // Schritte (Lautstärke folgt dem Tempo)
- hover_start:   {src:"soundreality-whoosh-large-sub-384631.mp3",vol:.6,in:.03,out:.2},           // Schwebe-Start ✨
- hover_loop:    {src:"freesound_community-ufo_floating-86547.mp3",vol:.4,loop:1,in:.35,out:.5},    // Schweben (Flügelschlag/Glitzern)
+ land_hard:     {src:"",vol:.6,rnd:.06,out:.15,max:2},   // sehr harte Landung (langer Fall)
+ run_loop:      {src:"",vol:.35,loop:1,in:.12,out:.2},   // Schritte (Lautstärke folgt dem Tempo)
+ hover_start:   {src:"",vol:.6,in:.03,out:.2},           // Schwebe-Start ✨
+ hover_loop:    {src:"",vol:.4,loop:1,in:.35,out:.5},    // Schweben (Flügelschlag/Glitzern)
  hover_low:     {src:"",vol:.35,loop:1,in:.2,out:.3},    // Warnton, wenn die Schwebe-Energie fast leer ist
- hover_end:     {src:"soundreality-whoosh-end-384629.mp3",vol:.5,out:.3},                  // Schweben losgelassen
+ hover_end:     {src:"",vol:.5,out:.3},                  // Schweben losgelassen
  hover_empty:   {src:"",vol:.6,out:.4},                  // Energie komplett leer
- hover_recharge:{src:"spinopel-insert-charging-cable-into-smartphone-393115.mp3",vol:.3,out:.3,max:1},            // Energie am Boden aufgeladen
- fish_collect:  {src:["floraphonic-slime-splat-1-219248.mp3","floraphonic-slime-squish-2-218566.mp3","floraphonic-slime-squish-5-218569.mp3","floraphonic-goopy-slime-4-219777.mp3","floraphonic-slime-splatter-1-220262.mp3","freesound_community-slimejump-6913.mp3"],vol:.5,rnd:.03,out:.15,max:6},   // 🐟 Fisch (Tonhöhe steigt bei Fisch-Serien)
- earn_bonus:    {src:["floraphonic-slime-splat-1-219248.mp3","floraphonic-slime-squish-2-218566.mp3","floraphonic-slime-squish-5-218569.mp3","floraphonic-goopy-slime-4-219777.mp3","floraphonic-slime-splatter-1-220262.mp3","freesound_community-slimejump-6913.mp3"],vol:.5,out:.3,max:2},            // µc-Bonus (Gegner, Herz, …)
- earn_big:      {src:["floraphonic-slime-splat-1-219248.mp3","floraphonic-slime-squish-2-218566.mp3","floraphonic-slime-squish-5-218569.mp3","floraphonic-goopy-slime-4-219777.mp3","floraphonic-slime-splatter-1-220262.mp3","freesound_community-slimejump-6913.mp3"],vol:.8,out:.6},                  // großer µc-Bonus (Boss 300, Sieg 100)
- checkpoint:    {src:"alexis_gaming_cam-accepter-2-394924.mp3",vol:.8,in:.05,out:.8},           // 🐾 Checkpoint
+ hover_recharge:{src:"",vol:.3,out:.3,max:1},            // Energie am Boden aufgeladen
+ fish_collect:  {src:"",vol:.5,rnd:.03,out:.15,max:6},   // 🐟 Fisch (Tonhöhe steigt bei Fisch-Serien)
+ earn_bonus:    {src:"",vol:.5,out:.3,max:2},            // µc-Bonus (Gegner, Herz, …)
+ earn_big:      {src:"",vol:.8,out:.6},                  // großer µc-Bonus (Boss 300, Sieg 100)
+ checkpoint:    {src:"",vol:.8,in:.05,out:.8},           // 🐾 Checkpoint
  respawn:       {src:"",vol:.5,in:.1,out:.4},            // Wiedereinstieg nach Sturz
- fall_pit:      {src:"dragon-studio-blowing-wind-463193.mp3",vol:.7,in:.05,out:.5},           // in die Grube gefallen
- low_health:    {src:"soundreality-heart-beat-137135.mp3",vol:.35,loop:1,in:1.2,out:1.5},  // Herzschlag bei nur noch 1 Leben
+ fall_pit:      {src:"",vol:.7,in:.05,out:.5},           // in die Grube gefallen
+ low_health:    {src:"",vol:.35,loop:1,in:1.2,out:1.5},  // Herzschlag bei nur noch 1 Leben
 
  /* ── 💥 SCHADEN ── */
- hurt:          {src:"universfield-punch-impact-hit-567196 (1).mp3",vol:.8,rnd:.04,out:.2,max:2},     // immer bei Treffer (Katzen-Aua)
- hurt_spike:    {src:"soumages-crunchy-bite-2-340948.mp3",vol:.6,out:.2},                  // + Stacheln
- hurt_enemy:    {src:"freesound_community-snake-hiss-95241.mp3",vol:.6,out:.2},                  // + Gegner-Kontakt
- hurt_boss:     {src:"universfield-punch-impact-hit-567196 (1).mp3",vol:.7,out:.2},                  // + Boss-Angriff (Welle, Fels, Feuerball, Körper)
+ hurt:          {src:"",vol:.8,rnd:.04,out:.2,max:2},     // immer bei Treffer (Katzen-Aua)
+ hurt_spike:    {src:"",vol:.6,out:.2},                  // + Stacheln
+ hurt_enemy:    {src:"",vol:.6,out:.2},                  // + Gegner-Kontakt
+ hurt_boss:     {src:"",vol:.7,out:.2},                  // + Boss-Angriff (Welle, Fels, Feuerball, Körper)
 
  /* ── 🐭 GEGNER & WELT ── */
  stomp_mouse:   {src:"",vol:.6,rnd:.06,out:.15,max:3},   // 🐭
@@ -747,20 +805,20 @@ const SND={
  crumble_start: {src:"",vol:.5,out:.2,max:2},            // Brüchige Plattform beginnt zu wackeln
  crumble_fall:  {src:"",vol:.5,out:.4,max:2},            // …und fällt (leiser, wenn weit weg)
  crumble_respawn:{src:"",vol:.35,in:.1,out:.4,max:2},    // …kommt zurück
- heart_drop:    {src:"universfield-water-drop-131023.mp3",vol:.5,out:.3},                  // ❤️ fällt vom Himmel
- heart_pickup:  {src:"freesound_community-msb03-91746.mp3",vol:.7,out:.4},                  // ❤️ +1 Leben
- heart_bonus:   {src:"freesound_community-one_beep-99630.mp3",vol:.6,out:.4},                  // ❤️ bei vollen Leben = µc
+ heart_drop:    {src:"",vol:.5,out:.3},                  // ❤️ fällt vom Himmel
+ heart_pickup:  {src:"",vol:.7,out:.4},                  // ❤️ +1 Leben
+ heart_bonus:   {src:"",vol:.6,out:.4},                  // ❤️ bei vollen Leben = µc
 
  /* ── 👹 BOSS „JANGO“ ── */
  boss_warning:  {src:"",vol:.7,in:.1,out:1.5},           // Schild „BOSS VORAUS“ erreicht
  boss_fall:     {src:"",vol:.7,in:.2,out:.4},            // Boss stürzt vom Himmel
- boss_land:     {src:"universfield-cinematic-impact-hit-352702.mp3",vol:.9,out:.8},                  // Aufprall bei der Landung
- boss_roar:     {src:"freesound_community-monster-growl-6311.mp3",vol:.9,in:.05,out:.8},           // Intro-Gebrüll
+ boss_land:     {src:"",vol:.9,out:.8},                  // Aufprall bei der Landung
+ boss_roar:     {src:"",vol:.9,in:.05,out:.8},           // Intro-Gebrüll
  boss_walk:     {src:"",vol:.45,loop:1,in:.2,out:.3},    // stapft auf dich zu
  boss_leap_windup:{src:"",vol:.6,out:.2},                // Sprung: Ausholen
  boss_leap_jump:{src:"",vol:.7,out:.3},                  // Sprung: Absprung
- boss_slam:     {src:"universfield-cinematic-impact-hit-352702.mp3",vol:.9,out:.6},                  // Sprung: Einschlag + Schockwelle
- boss_slam_echo:{src:"universfield-cinematic-impact-hit-352702.mp3",vol:.6,out:.5},                  // Phase 3: zweite Welle
+ boss_slam:     {src:"",vol:.9,out:.6},                  // Sprung: Einschlag + Schockwelle
+ boss_slam_echo:{src:"",vol:.6,out:.5},                  // Phase 3: zweite Welle
  boss_charge_windup:{src:"",vol:.6,out:.2},              // Ansturm: Scharren
  boss_charge_start:{src:"",vol:.7,out:.3},               // Ansturm: Start
  boss_charge_loop:{src:"",vol:.55,loop:1,in:.15,out:.3}, // Ansturm: Rennen
@@ -768,19 +826,19 @@ const SND={
  boss_stun:     {src:"",vol:.6,out:.5},                  // Boss benommen (Doppelschaden-Fenster!)
  boss_rocks_windup:{src:"",vol:.7,out:.3},               // Felsregen: Arme hoch + Gebrüll
  boss_rock_warn:{src:"",vol:.35,out:.2,max:4},           // Warnmarker am Boden
- boss_rock_impact:{src:"universfield-cinematic-impact-hit-352702.mp3",vol:.6,rnd:.08,out:.3,max:5},  // Fels schlägt ein
+ boss_rock_impact:{src:"",vol:.6,rnd:.08,out:.3,max:5},  // Fels schlägt ein
  boss_fire_windup:{src:"",vol:.6,out:.3},                // Feuerbälle: Aufladen
- boss_fire_shoot:{src:"floraphonic-fireball-whoosh-4-179128.mp3",vol:.6,rnd:.05,out:.2,max:3},   // Feuerball
- boss_fire_fan: {src:"floraphonic-fireball-whoosh-5-179129.mp3",vol:.7,rnd:.05,out:.25,max:2},   // 3er-Fächer (Phase 3)
- fireball_hit:  {src:["soundreality-explosion-fx-343683.mp3","universfield-impact-cinematic-boom-02-487858.mp3"],vol:.5,rnd:.08,out:.2,max:3},    // Feuerball platzt am Boden
+ boss_fire_shoot:{src:"",vol:.6,rnd:.05,out:.2,max:3},   // Feuerball
+ boss_fire_fan: {src:"",vol:.7,rnd:.05,out:.25,max:2},   // 3er-Fächer (Phase 3)
+ fireball_hit:  {src:"",vol:.5,rnd:.08,out:.2,max:3},    // Feuerball platzt am Boden
  boss_flame_loop:{src:"",vol:.4,loop:1,in:1.2,out:1.5},  // Phase 3: brennende Aura
- boss_hit:      {src:"universfield-punch-impact-hit-567196 (1).mp3",vol:.8,rnd:.04,out:.3},          // Kopfsprung trifft
- boss_hit_crit: {src:"universfield-punch-impact-hit-567196 (1).mp3",vol:.9,out:.4},                  // Kopfsprung auf den benommenen Boss (2× Schaden)
- boss_phase2:   {src:"freesound_community-081129_snd_dirtamprage-02aif-80744.mp3",vol:.9,out:.8},                  // „Jango wird wütend!“
- boss_phase3:   {src:"freesound_community-081129_snd_dirtamprage-02aif-80744.mp3",vol:1,  out:1},                  // „Jango rastet völlig aus!“
+ boss_hit:      {src:"",vol:.8,rnd:.04,out:.3},          // Kopfsprung trifft
+ boss_hit_crit: {src:"",vol:.9,out:.4},                  // Kopfsprung auf den benommenen Boss (2× Schaden)
+ boss_phase2:   {src:"",vol:.9,out:.8},                  // „Jango wird wütend!“
+ boss_phase3:   {src:"",vol:1,  out:1},                  // „Jango rastet völlig aus!“
  boss_defeated: {src:"",vol:.9,out:1.2},                 // letzter Treffer → Todeskampf beginnt
  boss_dying_loop:{src:"",vol:.6,loop:1,in:.2,out:.8},    // Explosionen während des Todeskampfs
- boss_explosion:{src:["soundreality-explosion-fx-343683.mp3","universfield-impact-cinematic-boom-02-487858.mp3"],vol:1,  out:1.5},                // finale Explosion
+ boss_explosion:{src:"",vol:1,  out:1.5},                // finale Explosion
  trophy_drop:   {src:"",vol:.5,out:.4},                  // 🏆 fällt herunter
  trophy_bounce: {src:"",vol:.4,rnd:.05,out:.3,max:3}     // 🏆 hüpft auf
 };
@@ -811,8 +869,7 @@ const AU=(()=>{
   function ensure(){if(!timer){tick.l=performance.now();timer=setInterval(tick,33)}}
   function make(n,o){
     const c=SND[n];if(!c||!c.src)return null;
-    const src=Array.isArray(c.src)?c.src[Math.floor(Math.random()*c.src.length)]:c.src;
-    const el=new Audio(src);el.loop=!!c.loop;el.preload="auto";
+    const el=new Audio(c.src);el.loop=!!c.loop;el.preload="auto";
     if(c.rnd||o.rate){el.preservesPitch=false;el.mozPreservesPitch=false;el.webkitPreservesPitch=false;
       el.playbackRate=Math.max(.25,(o.rate||1)*(1+(Math.random()*2-1)*(c.rnd||0)))}
     const i={n,c,el,v:c.loop&&c.in?0:1,tv:1,g:o.vol===undefined?1:o.vol,kill:0};
