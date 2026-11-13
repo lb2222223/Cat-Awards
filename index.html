@@ -920,7 +920,8 @@ const AU=(()=>{
   function ensure(){if(!timer){tick.l=performance.now();timer=setInterval(tick,33)}}
   function make(n,o){
     const c=SND[n];if(!c||!c.src)return null;
-    const el=new Audio(c.src);el.loop=!!c.loop;el.preload="auto";
+    const sr=Array.isArray(c.src)?c.src[(Math.random()*c.src.length)|0]:c.src;
+    const el=new Audio(sr);el.loop=!!c.loop;el.preload="auto";
     if(c.rnd||o.rate){el.preservesPitch=false;el.mozPreservesPitch=false;el.webkitPreservesPitch=false;
       el.playbackRate=Math.max(.25,(o.rate||1)*(1+(Math.random()*2-1)*(c.rnd||0)))}
     const i={n,c,el,v:c.loop&&c.in?0:1,tv:1,g:o.vol===undefined?1:o.vol,kill:0};
@@ -997,7 +998,7 @@ const ENM=[["m",17],["m",28],["f",53],["h",58],["m",77],["m",97],
  ["m",426],["b",431,7,60,18,1.2],["f",444],["f",454],["h",460],["b",463,6,50,20,1.3],["b",474,7,60,22,1.2],["b",480,8,50,22,1.5],
  ["m",484],["h",490],["f",496],["b",500,8,30,20,1.3],["m",505],["f",511],["h",516],["b",514,6,60,20,1.4],["b",524,7,50,22,1.3],
  ["m",528],["b",531,7,40,20,1.4],["b",537,6,50,24,1.2],["f",541],["h",548],["f",554],["b",547,7,60,20,1.5],["b",558,8,30,20,1.3],["m",564],["f",570]];
-const CPS=[67,134,168,221,240,260,306,351,372,390,426,455,484,505,542,566].map(x=>({x,on:0}));
+const CPS=[67,134,168,221,240,260,306,351,390,455,505,566].map(x=>({x,on:0}));
 const solid=(x,y)=>x<0||x>=W?true:(y<0||y>=H?false:(G[y*W+x]===1||G[y*W+x]===2));
 const blocked=(x,y)=>x<0||x>=W?true:(y<0||y>=H?false:G[y*W+x]>0);
 /* ───────── State ───────── */
@@ -1010,6 +1011,7 @@ const stars=Array.from({length:70},(_,i)=>({x:(i*97)%VW,y:(i*53)%260,s:1+i%3,p:i
 const flies=Array.from({length:26},(_,i)=>({x:(i*173)%VW,y:200+((i*61)%190),s:.5+(i%5)*.25,p:i*1.7}));
 function reset(keep){
   loadout();const pc=keep?cpI:-1;
+  const gotSet=keep&&coins?new Set(coins.filter(c=>c.got).map(c=>c.id)):null;
   coins=[];
   plats.forEach(([x,y,l])=>{for(let i=0;i<l;i++)coins.push({x:(x+i)*T+16,y:(y-1)*T+14,got:0})});
   pits.forEach(([a,b])=>{const n=b-a+1;
@@ -1017,6 +1019,7 @@ function reset(keep){
     else for(let i=0;i<4;i++)coins.push({x:(a+.2+i*(n-.4)/3)*T+16,y:(10.3-Math.sin(i/3*Math.PI)*2)*T,got:0})});
   [[16,18],[37,38],[130,132],[148,150]].forEach(([a,b])=>{for(let x=a;x<=b;x++)if(solid(x,12)&&!blocked(x,11))coins.push({x:x*T+16,y:11*T+12,got:0})});
   total=coins.length;coins.forEach((c,i)=>c.id=i);
+  if(gotSet)coins.forEach(c=>{if(gotSet.has(c.id))c.got=1});
   en=ENM.map((d,id)=>{const [ty,tx,a,b,c,s]=d;
     if(ty==="b")return{id,k:"b",cx:tx*T+16,cy:a*T,ax:b,ay:c,sp:s,ph:tx,x:tx*T,y:a*T,w:26,h:20,dir:1,alive:1,dead:0};
     const by=GY*T-22;return{id,k:ty,x:tx*T,y:by,by,w:24,h:22,dir:-1,alive:1,dead:0,sp:ty==="f"?105:ty==="h"?62:55,ph:tx*.37}});
@@ -1025,7 +1028,6 @@ function reset(keep){
   CPS.forEach((c,i)=>c.on=i<=pc?1:0);cpI=pc;
   const sx=pc>=0?CPS[pc].x*T:2*T,sy=pc>=0?GY*T-25:10*T;
   pl={x:sx,y:sy,w:24,h:24,vx:0,vy:0,face:1,on:0,coy:0,jb:0,hr:0,sq:0,inv:keep?1.2:0,run:0,blink:2,hov:0,hl:hoverMax,hw:0,mv:null,ht:0};
-  if(keep)coins.forEach(c=>{if(c.x<sx-T)c.got=1});
   fish=coins.filter(c=>c.got).length;
   parts=[];rings=[];trail=[];flo=[];B=null;proj=[];waves=[];rocks=[];warns=[];hearts=[];trophy=null;fw=0;lives=maxL;st="play";safe={x:sx,y:sy};toast=null;hovAcc=0;
   cam=Math.max(0,Math.min(TW-VW,sx-300));
@@ -1166,6 +1168,7 @@ function updAtk(dt){
     p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt;
     if(Math.random()<dt*60)parts.push({x:p.x,y:p.y,vx:(Math.random()-.5)*30,vy:(Math.random()-.5)*30,life:.4,max:.4,c:Math.random()<.5?"#ffb347":"#ff5a3c",r:2+Math.random()*3,shape:"star",g:0,rot:0,vr:0});
     if(pl.inv<=0&&Math.hypot(p.x-pl.x-12,p.y-pl.y-12)<20){hurt("boss");p.life=0;AU.play("fireball_hit");spawn(p.x,p.y,12,["#ffb347","#ff5a3c","#fff"],160,{shape:"star",g:.2,life:.5})}
+    else if(solid(Math.floor(p.x/T),Math.floor(p.y/T))&&p.y<BG-6){p.life=0;AU.play("fireball_hit");spawn(p.x,p.y,12,["#ffb347","#ff5a3c","#fff"],160,{shape:"star",g:.2,life:.5});ring(p.x,p.y,"#ff9a5c",90,.3,1,2)}
     else if(p.y>=BG-6||p.x<ARX-30||p.x>ARX+VW+30){p.life=0;if(p.y>=BG-6){AU.play("fireball_hit");spawn(p.x,BG-4,12,["#ffb347","#ff5a3c","#fff"],170,{shape:"star",g:.3,life:.5});ring(p.x,BG,"#ff9a5c",110,.3,.25,2)}}
   }
   proj=proj.filter(p=>p.life>0);
