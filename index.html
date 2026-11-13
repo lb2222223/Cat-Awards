@@ -796,6 +796,7 @@ cv.width=VW;cv.height=VH;
    in   : Fade-In in Sekunden   ·  out : Fade-Out in Sekunden
    rnd  : zufällige Tonhöhen-Variation (0.06 = ±6 %), damit sich nichts abnutzt
    max  : wie oft derselbe Sound gleichzeitig laufen darf
+   dur  : maximale Wiedergabedauer in Sekunden (endet mit out-Fade)
    Tipp: SFX_DEBUG = true zeigt oben links im Spiel, welche Sounds gerade auslösen.
    ═══════════════════════════════════════════════════════════════ */
 const SFX_DEBUG=false;
@@ -816,21 +817,21 @@ const SND={
  mute:          {src:"",vol:.5},                         // Stumm-Knopf umgeschaltet
 
  /* ── 🐱 KATZE ── */
- jump:          {src:"",vol:.6,rnd:.06,out:.1,max:3},
- land:          {src:"",vol:.4,rnd:.08,out:.1,max:3},    // normale Landung (nach Sprung)
+ jump:          {src:"universfield-cartoon-spring-jump-02-277576.mp3",vol:.6,rnd:.06,out:.1,max:3},
+ land:          {src:"freesound_community-land2-43790.mp3",vol:.4,rnd:.08,out:.1,max:3},    // normale Landung (nach Sprung)
  land_hard:     {src:"universfield-cinematic-impact-hit-352702.mp3",vol:.6,rnd:.06,out:.15,max:2},   // sehr harte Landung (langer Fall)
  run_loop:      {src:"joentnt-walk-on-grass-1-291984.mp3",vol:.35,loop:1,in:.12,out:.2},   // Schritte (Lautstärke folgt dem Tempo)
  hover_start:   {src:"soundreality-whoosh-large-sub-384631.mp3",vol:.6,in:.03,out:.2},           // Schwebe-Start ✨
  hover_loop:    {src:"freesound_community-ufo_floating-86547.mp3",vol:.4,loop:1,in:.35,out:.5},    // Schweben (Flügelschlag/Glitzern)
- hover_low:     {src:"",vol:.35,loop:1,in:.2,out:.3},    // Warnton, wenn die Schwebe-Energie fast leer ist
+ hover_low:     {src:"universfield-low-battery-alert-151926.mp3",vol:.35,loop:1,in:.2,out:.3},    // Warnton, wenn die Schwebe-Energie fast leer ist
  hover_end:     {src:"soundreality-whoosh-end-384629.mp3",vol:.5,out:.3},                  // Schweben losgelassen
- hover_empty:   {src:"",vol:.6,out:.4},                  // Energie komplett leer
+ hover_empty:   {src:"snorcon-low-battery-421820.mp3",vol:.6,out:.4},                  // Energie komplett leer
  hover_recharge:{src:"spinopel-insert-charging-cable-into-smartphone-393115.mp3",vol:.3,out:.3,max:1},            // Energie am Boden aufgeladen
  fish_collect:  {src:["floraphonic-slime-splat-1-219248.mp3","floraphonic-slime-squish-2-218566.mp3","floraphonic-slime-squish-5-218569.mp3","floraphonic-goopy-slime-4-219777.mp3","floraphonic-slime-splatter-1-220262.mp3","freesound_community-slimejump-6913.mp3"],vol:.5,rnd:.03,out:.15,max:6},   // 🐟 Fisch (Tonhöhe steigt bei Fisch-Serien)
  earn_bonus:    {src:["floraphonic-slime-splat-1-219248.mp3","floraphonic-slime-squish-2-218566.mp3","floraphonic-slime-squish-5-218569.mp3","floraphonic-goopy-slime-4-219777.mp3","floraphonic-slime-splatter-1-220262.mp3","freesound_community-slimejump-6913.mp3"],vol:.5,out:.3,max:2},            // µc-Bonus (Gegner, Herz, …)
  earn_big:      {src:["floraphonic-slime-splat-1-219248.mp3","floraphonic-slime-squish-2-218566.mp3","floraphonic-slime-squish-5-218569.mp3","floraphonic-goopy-slime-4-219777.mp3","floraphonic-slime-splatter-1-220262.mp3","freesound_community-slimejump-6913.mp3"],vol:.8,out:.6},                  // großer µc-Bonus (Boss 300, Sieg 100)
  checkpoint:    {src:"alexis_gaming_cam-accepter-2-394924.mp3",vol:.8,in:.05,out:.8},           // 🐾 Checkpoint
- respawn:       {src:"",vol:.5,in:.1,out:.4},            // Wiedereinstieg nach Sturz
+ respawn:       {src:"char_respawn_01.mp3",vol:.3,in:.1,out:.4},            // Wiedereinstieg nach Sturz
  fall_pit:      {src:"dragon-studio-blowing-wind-463193.mp3",vol:.7,in:.05,out:.5},           // in die Grube gefallen
  low_health:    {src:"soundreality-heart-beat-137135.mp3",vol:.35,loop:1,in:1.2,out:1.5},  // Herzschlag bei nur noch 1 Leben
 
@@ -841,9 +842,9 @@ const SND={
  hurt_boss:     {src:"universfield-punch-impact-hit-567196 (1).mp3",vol:.7,out:.2},                  // + Boss-Angriff (Welle, Fels, Feuerball, Körper)
   
  /* ── 👑 KRONE (nur aktiv, wenn die Krone ausgerüstet ist) ── */
- crown_holy:        {src:"",vol:.4,loop:1,in:1.5,out:1.2},     // Holyness: heiliges Dauer-Summen / Chor, solange die Krone getragen wird
- crown_holy_kill:   {src:"",vol:.8,rnd:.03,out:.4,max:2},      // Holy Kill: bei jedem Kill, wird mit der Streak höher
- crown_holy_damage: {src:"",vol:.8,out:.4},                    // Holy Damage: bei Schaden (Katze getroffen / Boss getroffen)
+ crown_holy:        {src:"samuelfjohanns-sacral-chant-99557.mp3",vol:.12,loop:1,in:1.5,out:1.2},     // Leiser Chor, solange die Krone in der Runde getragen wird
+ crown_holy_kill:   {src:"coghezzi-holy-healing-spell-533279.mp3",vol:.8,rnd:.03,out:.4,max:2},      // Holy Kill: bei jedem Kill, wird mit der Streak höher
+ crown_holy_damage: {src:"yodguard-holy-magic-short-3-534666.mp3",vol:.8,out:.4},                    // Holy Damage: bei Schaden (Katze getroffen / Boss getroffen)
 
   /* ── 🐭 GEGNER & WELT ── */
  stomp_mouse:   {src:"",vol:.6,rnd:.06,out:.15,max:3},   // 🐭
@@ -860,36 +861,36 @@ const SND={
 
  /* ── 👹 BOSS „JANGO“ ── */
  boss_warning:  {src:"",vol:.7,in:.1,out:1.5},           // Schild „BOSS VORAUS“ erreicht
- boss_fall:     {src:"",vol:.7,in:.2,out:.4},            // Boss stürzt vom Himmel
+ boss_fall:     {src:"universfield-heavy-body-fall-352446.mp3",vol:.7,in:.2,out:.4},            // Boss stürzt vom Himmel
  boss_land:     {src:"universfield-cinematic-impact-hit-352702.mp3",vol:.9,out:.8},                  // Aufprall bei der Landung
  boss_roar:     {src:"freesound_community-monster-growl-6311.mp3",vol:.9,in:.05,out:.8},           // Intro-Gebrüll
- boss_walk:     {src:"",vol:.45,loop:1,in:.2,out:.3},    // stapft auf dich zu
- boss_leap_windup:{src:"",vol:.6,out:.2},                // Sprung: Ausholen
- boss_leap_jump:{src:"",vol:.7,out:.3},                  // Sprung: Absprung
+ boss_walk:     {src:"freesound_community-heavy-walking-80529.mp3",vol:.45,loop:1,in:.2,out:.3},    // stapft auf dich zu
+ boss_leap_windup:{src:"dragon-studio-epic-whoosh-478371.mp3",vol:.6,out:.2},                // Sprung: Ausholen
+ boss_leap_jump:{src:"dragon-studio-simple-whoosh-03-433005.mp3",vol:.7,out:.3},                  // Sprung: Absprung
  boss_slam:     {src:"universfield-cinematic-impact-hit-352702.mp3",vol:.9,out:.6},                  // Sprung: Einschlag + Schockwelle
  boss_slam_echo:{src:"universfield-cinematic-impact-hit-352702.mp3",vol:.6,out:.5},                  // Phase 3: zweite Welle
- boss_charge_windup:{src:"",vol:.6,out:.2},              // Ansturm: Scharren
- boss_charge_start:{src:"",vol:.7,out:.3},               // Ansturm: Start
- boss_charge_loop:{src:"",vol:.55,loop:1,in:.15,out:.3}, // Ansturm: Rennen
- boss_charge_crash:{src:"",vol:.9,out:.6},               // Wand getroffen
- boss_stun:     {src:"",vol:.6,out:.5},                  // Boss benommen (Doppelschaden-Fenster!)
- boss_rocks_windup:{src:"",vol:.7,out:.3},               // Felsregen: Arme hoch + Gebrüll
- boss_rock_warn:{src:"",vol:.35,out:.2,max:4},           // Warnmarker am Boden
+ boss_charge_windup:{src:"dragon-studio-whoosh-cinematic-376887.mp3",vol:.6,out:.2},              // Ansturm: Scharren
+ boss_charge_start:{src:"dragon-studio-whoosh-cinematic-5-376880.mp3",vol:.7,out:.3},               // Ansturm: Start
+ boss_charge_loop:{src:"dragon-studio-whoosh-motion-405445.mp3",vol:.55,loop:1,in:.15,out:.3}, // Ansturm: Rennen
+ boss_charge_crash:{src:"dragon-studio-heavy-boulder-thud-515257.mp3",vol:.9,out:.6},               // Wand getroffen
+ boss_stun:     {src:"freesound_community-fx_stungrenade01-68487.mp3",vol:.22,in:.035,out:.16,dur:.45}, // Boss benommen (Doppelschaden-Fenster!)
+ boss_rocks_windup:{src:"dragon-studio-epic-dragon-roar-364481.mp3",vol:.7,out:.3},               // Felsregen: Arme hoch + Gebrüll
+ boss_rock_warn:{src:"36505577-system-notification-alert-toast-warn-274740.mp3",vol:.35,out:.2,max:4},           // Warnmarker am Boden
  boss_rock_impact:{src:"universfield-cinematic-impact-hit-352702.mp3",vol:.6,rnd:.08,out:.3,max:5},  // Fels schlägt ein
- boss_fire_windup:{src:"",vol:.6,out:.3},                // Feuerbälle: Aufladen
+ boss_fire_windup:{src:"floraphonic-fireball-whoosh-8-201454.mp3",vol:.6,out:.3},                // Feuerbälle: Aufladen
  boss_fire_shoot:{src:"floraphonic-fireball-whoosh-4-179128.mp3",vol:.6,rnd:.05,out:.2,max:3},   // Feuerball
  boss_fire_fan: {src:"floraphonic-fireball-whoosh-5-179129.mp3",vol:.7,rnd:.05,out:.25,max:2},   // 3er-Fächer (Phase 3)
  fireball_hit:  {src:["soundreality-explosion-fx-343683.mp3","universfield-impact-cinematic-boom-02-487858.mp3"],vol:.5,rnd:.08,out:.2,max:3},    // Feuerball platzt am Boden
- boss_flame_loop:{src:"",vol:.4,loop:1,in:1.2,out:1.5},  // Phase 3: brennende Aura
+ boss_flame_loop:{src:"soundreality-fire-crackling-sound-499636.mp3",vol:.2,loop:1,in:1.2,out:1.5},  // Phase 3: brennende Aura
  boss_hit:      {src:"universfield-punch-impact-hit-567196 (1).mp3",vol:.8,rnd:.04,out:.3},          // Kopfsprung trifft
  boss_hit_crit: {src:"universfield-punch-impact-hit-567196 (1).mp3",vol:.9,out:.4},                  // Kopfsprung auf den benommenen Boss (2× Schaden)
  boss_phase2:   {src:"freesound_community-081129_snd_dirtamprage-02aif-80744.mp3",vol:.9,out:.8},                  // „Jango wird wütend!“
  boss_phase3:   {src:"freesound_community-081129_snd_dirtamprage-02aif-80744.mp3",vol:1,  out:1},                  // „Jango rastet völlig aus!“
- boss_defeated: {src:"",vol:.9,out:1.2},                 // letzter Treffer → Todeskampf beginnt
- boss_dying_loop:{src:"",vol:.6,loop:1,in:.2,out:.8},    // Explosionen während des Todeskampfs
+ boss_defeated: {src:"freesound_community-yart-37092.mp3",vol:.9,out:1.2},                 // letzter Treffer → Todeskampf beginnt
+ boss_dying_loop:{src:"daviddumaisaudio-large-underwater-explosion-190270.mp3",vol:.6,loop:1,in:.2,out:.8},    // Explosionen während des Todeskampfs
  boss_explosion:{src:["soundreality-explosion-fx-343683.mp3","universfield-impact-cinematic-boom-02-487858.mp3"],vol:1,  out:1.5},                // finale Explosion
- trophy_drop:   {src:"",vol:.5,out:.4},                  // 🏆 fällt herunter
- trophy_bounce: {src:"",vol:.4,rnd:.05,out:.3,max:3}     // 🏆 hüpft auf
+ trophy_drop:   {src:"eaglaxle-gaming-victory-2-464017.mp3",vol:.5,out:.4},                  // 🏆 fällt herunter
+ trophy_bounce: {src:"eaglaxle-gaming-victory-464016.mp3",vol:.4,rnd:.05,out:.3,max:3}     // 🏆 hüpft auf
 };
 
 /* ── Audio-Engine (du musst hier nichts ändern) ── */
@@ -909,6 +910,7 @@ const AU=(()=>{
     const now=performance.now(),dt=Math.min(.1,(now-tick.l)/1000||.03);tick.l=now;
     for(let k=live.length-1;k>=0;k--){
       const i=live[k],c=i.c;
+      if(c.dur&&i.el.currentTime>=Math.max(0,c.dur-(c.out||0))&&!i.kill){i.tv=0;i.kill=1}
       if(i.tv!==i.v){const ft=i.tv>i.v?c.in:c.out;i.v=ft>0?(i.tv>i.v?Math.min(i.tv,i.v+dt/ft):Math.max(i.tv,i.v-dt/ft)):i.tv}
       i.el.volume=vol(i);
       if(i.kill&&i.v<=0.001||i.el.ended){try{i.el.pause()}catch(e){}live.splice(k,1)}
